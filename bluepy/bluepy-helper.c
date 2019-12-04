@@ -1758,8 +1758,11 @@ static void discover(bool start)
     DBG("hcidev handle is 0x%x, mgmt_ind is %d", hci_dd, mgmt_ind);
     if (start) {
         err = hci_le_set_scan_enable(hci_dd, 0x00, filter_dup, 10000);
+	DBG("hci_le_set_scan_enable: %d", err);
         err = hci_le_set_scan_parameters(hci_dd, scan_type, interval, window,
                                              own_type, filter_policy, 10000);
+
+        DBG("hci_le_set_scan_parameters: %d", err);
         if (err < 0) {
             DBG("Set scan parameters failed");
             resp_mgmt(err_BAD_STATE);

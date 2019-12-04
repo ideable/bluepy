@@ -1,3 +1,4 @@
+ROOTDIR=$(shell pwd)
 BLUEZ_PATH=./bluez-5.47
 
 BLUEZ_SRCS  = lib/bluetooth.c lib/hci.c lib/sdp.c lib/uuid.c
@@ -9,12 +10,12 @@ BLUEZ_SRCS += src/shared/io-glib.c src/shared/timeout-glib.c
 IMPORT_SRCS = $(addprefix $(BLUEZ_PATH)/, $(BLUEZ_SRCS))
 LOCAL_SRCS  = bluepy-helper.c
 
-CC ?= gcc
-CFLAGS += -g -Wall # -Werror
+GCC ?= gcc
+CFLAGS += -g -Wall# -Werror
 
 CPPFLAGS += -DHAVE_CONFIG_H
 ifneq ($(DEBUGGING),)
-CFLAGS += -DBLUEPY_DEBUG=1 -O0
+CFLAGS += -DBLUEPY_DEBUG_FILE_LOG=1 -O0
 else
 CFLAGS += -Os
 endif
@@ -24,10 +25,14 @@ CPPFLAGS += -I$(BLUEZ_PATH)/attrib -I$(BLUEZ_PATH) -I$(BLUEZ_PATH)/lib -I$(BLUEZ
 CPPFLAGS += $(shell pkg-config glib-2.0 --cflags)
 LDLIBS += $(shell pkg-config glib-2.0 --libs)
 
+-include $(ROOTDIR)/make/arch.mk
+-include $(ROOTDIR)/make/rules.mk
+
+
 all: bluepy-helper
 
 bluepy-helper: $(LOCAL_SRCS) $(IMPORT_SRCS)
-	$(CC) -L. $(CFLAGS) $(CPPFLAGS) -o $@ $(LOCAL_SRCS) $(IMPORT_SRCS) $(LDLIBS)
+	$(GCC) $(TARGET_CFLAGS) ${TARGET_LDFLAGS} -I/home/gonzalo/OpenWrt-SDK/staging_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/usr/include/glib-2.0 -L. $(CFLAGS) $(CPPFLAGS) -o $@ $(LOCAL_SRCS) $(IMPORT_SRCS) $(LDLIBS)
 
 $(IMPORT_SRCS): bluez-src.tgz
 	tar xzf $<
